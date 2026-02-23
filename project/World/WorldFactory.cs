@@ -29,6 +29,8 @@ public sealed class WorldFactory
             world.SetTile(new Position(row, 0), new WallTile());
             world.SetTile(new Position(row, world.Cols - 1), new WallTile());
         }
+
+        world.SetTile(new Position(0, 0), new FloorTile());
     }
 
     private static void BuildInnerWalls(World world)

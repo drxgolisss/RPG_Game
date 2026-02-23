@@ -42,6 +42,16 @@ public sealed class World
         return p.Row >= 0 && p.Row < Rows && p.Col >= 0 && p.Col < Cols;
     }
 
+    public bool CanEnter(Position p)
+    {
+        if (!InBounds(p))
+        {
+            return false;
+        }
+
+        return _cells[p.Row, p.Col].Tile.IsPassable;
+    }
+
     public Cell GetCell(Position p)
     {
         EnsureInBounds(p);
