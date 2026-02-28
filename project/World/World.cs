@@ -67,7 +67,7 @@ public sealed class World
     public void AddItem(Position p, Item item)
     {
         EnsureInBounds(p);
-        _cells[p.Row, p.Col].Items.Add(item);
+        _cells[p.Row, p.Col].AddItem(item);
     }
 
     public IReadOnlyList<Item> GetItems(Position p)

@@ -1,4 +1,5 @@
 using ConsoleRpgStage1.Core;
+using ConsoleRpgStage1.Items;
 using ConsoleRpgStage1.World.Tiles;
 
 namespace ConsoleRpgStage1.World;
@@ -13,7 +14,22 @@ public sealed class WorldFactory
         var world = new World(DefaultRows, DefaultCols, new FloorTile());
         BuildBorderWalls(world);
         BuildInnerWalls(world);
+        PlacePredefinedItems(world);
         return world;
+    }
+
+    private static void PlacePredefinedItems(World world)
+    {
+        world.AddItem(new Position(1, 1), new ShortSwordItem());
+        world.AddItem(new Position(2, 3), new BattleAxeItem());
+        world.AddItem(new Position(3, 6), new GreatswordItem());
+
+        world.AddItem(new Position(1, 3), new ItemCoin());
+        world.AddItem(new Position(2, 5), new ItemGold());
+
+        world.AddItem(new Position(4, 3), new ItemRock());
+        world.AddItem(new Position(5, 5), new BrokenBottleItem());
+        world.AddItem(new Position(6, 7), new RustyGearItem());
     }
 
     private static void BuildBorderWalls(World world)
@@ -31,6 +47,8 @@ public sealed class WorldFactory
         }
 
         world.SetTile(new Position(0, 0), new FloorTile());
+        world.SetTile(new Position(0, 1), new FloorTile());
+        world.SetTile(new Position(1, 0), new FloorTile());
     }
 
     private static void BuildInnerWalls(World world)
