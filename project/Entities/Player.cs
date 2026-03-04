@@ -1,6 +1,7 @@
 using ConsoleRpgStage1.Core;
 using ConsoleRpgStage1.Items;
 
+
 namespace ConsoleRpgStage1.Entities;
 
 public sealed class Player
@@ -28,6 +29,17 @@ public sealed class Player
     public Hand RightHand { get; }
 
     public Equipment Equipment { get; }
+
+    public Stats Stats{ get; } = new Stats
+    {
+        Strength = 5,
+        Dexterity = 5,
+        Health = 10,
+        Luck = 3,
+        Aggression = 4,
+        Wisdom = 2
+    };
+
 
     public bool TryMove(Direction direction, World.World world)
     {

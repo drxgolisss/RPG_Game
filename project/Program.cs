@@ -218,8 +218,11 @@ static void Render(
     string message)
 {
     const int screenWidth = 80;
-    const int panelRows = 12;
-    const int inventoryRows = 6;
+    const int separatorWidth = 3;
+    var mapWidth = world.Cols;
+    var panelWidth = Math.Max(10, screenWidth - mapWidth - separatorWidth);
+    var panelRows = world.Rows;
+    var inventoryRows = Math.Max(3, panelRows - 9);
 
     var frame = renderer.BuildFrame(world, player);
     var mapLines = frame.Split('\n').Select(line => line.TrimEnd('\r')).ToList();
@@ -233,6 +236,7 @@ static void Render(
         $"Mode: {(inventoryMode ? "INVENTORY" : "GAME")}",
         $"Inventory: {player.Inventory.Count} | Coins: {player.Coins} | Gold: {player.Gold}",
         $"Equipped: Left={leftItem}, Right={rightItem}",
+        $"Stats: STR={player.Stats.Strength} DEX={player.Stats.Dexterity} HP={player.Stats.Health} LUCK={player.Stats.Luck} AGG={player.Stats.Aggression} WIS={player.Stats.Wisdom}",
         itemsAtFeet.Count == 0
             ? "Items here: none"
             : $"Items here: {string.Join(", ", itemsAtFeet.Select(item => item.Name))}",
@@ -242,8 +246,8 @@ static void Render(
     if (inventoryMode)
     {
         panelLines.Add(awaitingUnequipHand
-            ? "Inventory help: U active -> press L or R to unequip, Esc/I close inventory"
-            : "Inventory help: Up/Down or W/S select, D drop, L equip left, R equip right, U then L/R unequip");
+            ? "Help: U active. Press L/R."
+            : "Help: Up/Down, D, L, R, U");
         panelLines.Add("Inventory list:");
 
         var inventoryCount = player.Inventory.Count;
@@ -278,7 +282,7 @@ static void Render(
     }
     else
     {
-        panelLines.Add("Game help: WASD/arrows move, E pick up, I inventory, Q/Esc quit");
+        panelLines.Add("Help: WASD/arrows, E, I, Q");
     }
 
     while (panelLines.Count < panelRows)
@@ -291,24 +295,21 @@ static void Render(
         panelLines = panelLines.Take(panelRows).ToList();
     }
 
-    var sb = new StringBuilder((world.Rows + panelRows) * (screenWidth + Environment.NewLine.Length));
+    var sb = new StringBuilder(panelRows * (screenWidth + Environment.NewLine.Length));
 
-    for (var row = 0; row < world.Rows; row++)
+    for (var row = 0; row < panelRows; row++)
     {
-        var line = row < mapLines.Count ? mapLines[row] : string.Empty;
-        sb.AppendLine(FitLine(line, screenWidth));
-    }
-
-    foreach (var panelLine in panelLines)
-    {
-        sb.AppendLine(FitLine(panelLine, screenWidth));
+        var mapLine = row < mapLines.Count ? mapLines[row] : string.Empty;
+        var sideLine = row < panelLines.Count ? panelLines[row] : string.Empty;
+        var composedLine = $"{FitLine(mapLine, mapWidth)} | {FitLine(sideLine, panelWidth)}";
+        sb.AppendLine(FitLine(composedLine, screenWidth));
     }
 
     Console.SetCursorPosition(0, 0);
     Console.Write(sb.ToString());
 
-    var safeRow = Math.Min(world.Rows + panelRows, Console.BufferHeight - 1);
-    Console.SetCursorPosition(0, safeRow);
+    // var safeRow = Math.Min(panelRows, Console.BufferHeight - 1);
+    // Console.SetCursorPosition(0, safeRow);
 }
 
 static string FitLine(string line, int width)

@@ -4,7 +4,7 @@ namespace ConsoleRpgStage1.Items;
 
 public sealed class ItemGold : CurrencyItem
 {
-    public ItemGold() : base("Gold", '$', 1)
+    public ItemGold() : base("Gold", 'g', 1)
     {
     }
 
