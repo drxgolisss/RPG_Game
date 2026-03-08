@@ -122,6 +122,6 @@ public sealed class Equipment
         return _leftItem != null &&
                _rightItem != null &&
                ReferenceEquals(_leftItem, _rightItem) &&
-               _leftItem.HandsRequired == 2;
+               (_leftItem.HandsRequired == 2 || _rightItem.HandsRequired == 2);
     }
 }

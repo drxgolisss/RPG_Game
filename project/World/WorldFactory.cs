@@ -20,7 +20,7 @@ public sealed class WorldFactory
 
     private static void PlacePredefinedItems(World world)
     {
-        world.AddItem(new Position(1, 1), new ShortSwordItem());
+        world.AddItem(new Position(2, 22), new ShortSwordItem());
         world.AddItem(new Position(2, 3), new BattleAxeItem());
         world.AddItem(new Position(3, 6), new GreatswordItem());
 

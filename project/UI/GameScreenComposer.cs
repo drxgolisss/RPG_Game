@@ -26,6 +26,7 @@ public sealed class GameScreenComposer
         var panelLines = new List<string>();
         AppendWrappedLine(panelLines, $"Mode: {context.CurrentMode.Name}", panelWidth);
         AppendWrappedLine(panelLines, $"Inventory: {player.Inventory.Count} | Coins: {player.Coins} | Gold: {player.Gold}", panelWidth);
+        AppendWrappedLine(panelLines, $"Stats: {player.Stats}", panelWidth);
         AppendWrappedLine(panelLines, $"Equipped: Left={leftItem}, Right={rightItem}", panelWidth);
         AppendWrappedLine(
             panelLines,
