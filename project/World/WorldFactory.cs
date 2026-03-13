@@ -1,5 +1,6 @@
 using ConsoleRpgStage1.Core;
 using ConsoleRpgStage1.Items;
+using ConsoleRpgStage1.World.Building;
 using ConsoleRpgStage1.World.Tiles;
 
 namespace ConsoleRpgStage1.World;
@@ -11,11 +12,25 @@ public sealed class WorldFactory
 
     public World CreateDefault()
     {
-        var world = new World(DefaultRows, DefaultCols, new FloorTile());
+        var world = CreateEmptyDungeon();
         BuildBorderWalls(world);
         BuildInnerWalls(world);
         PlacePredefinedItems(world);
         return world;
+    }
+
+    public World CreateEmptyDungeon()
+    {
+        return new DungeonBuilder(DefaultRows, DefaultCols)
+            .StartWith(new EmptyDungeonProcedure())
+            .Build();
+    }
+
+    public World CreateFilledDungeon()
+    {
+        return new DungeonBuilder(DefaultRows, DefaultCols)
+            .StartWith(new FilledDungeonProcedure())
+            .Build();
     }
 
     private static void PlacePredefinedItems(World world)

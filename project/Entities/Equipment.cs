@@ -1,5 +1,4 @@
 using ConsoleRpgStage1.Items;
-
 namespace ConsoleRpgStage1.Entities;
 
 public sealed class Equipment
@@ -23,7 +22,7 @@ public sealed class Equipment
 
     public EquipResult TryEquipLeft(Weapon weapon)
     {
-        if (weapon.HandsRequired == 2)
+        if (weapon.HandRequirement == HandRequirement.TwoHanded)
         {
             return TryEquipTwoHanded(weapon);
         }
@@ -44,7 +43,7 @@ public sealed class Equipment
 
     public EquipResult TryEquipRight(Weapon weapon)
     {
-        if (weapon.HandsRequired == 2)
+        if (weapon.HandRequirement == HandRequirement.TwoHanded)
         {
             return TryEquipTwoHanded(weapon);
         }
@@ -122,6 +121,6 @@ public sealed class Equipment
         return _leftItem != null &&
                _rightItem != null &&
                ReferenceEquals(_leftItem, _rightItem) &&
-               (_leftItem.HandsRequired == 2 || _rightItem.HandsRequired == 2);
+               (_leftItem.HandRequirement == HandRequirement.TwoHanded || _rightItem.HandRequirement == HandRequirement.TwoHanded);
     }
 }
