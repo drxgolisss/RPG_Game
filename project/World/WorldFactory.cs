@@ -33,6 +33,13 @@ public sealed class WorldFactory
             .Build();
     }
 
+    public World CreateDungeonGrounds()
+    {
+        return new DungeonGroundsStrategy()
+            .Configure(new DungeonBuilder(DefaultRows, DefaultCols))
+            .Build();
+    }
+
     private static void PlacePredefinedItems(World world)
     {
         world.AddItem(new Position(2, 22), new ShortSwordItem());

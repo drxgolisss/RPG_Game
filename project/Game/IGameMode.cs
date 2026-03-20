@@ -4,7 +4,7 @@ public interface IGameMode
 {
     string Name { get; }
 
-    IReadOnlyList<string> HelpLines { get; }
+    IReadOnlyList<string> GetHelpLines(GameContext context);
 
     ModeResult HandleKey(ConsoleKeyInfo key, GameContext context);
 

@@ -2,18 +2,6 @@ namespace ConsoleRpgStage1.Game;
 
 public sealed class InventoryMode : IGameMode
 {
-    private static readonly IReadOnlyList<string> BrowseHelpLines = new[]
-    {
-        "Up/Down or W/S select",
-        "D drop, L equip left, R equip right, U then L/R unequip"
-    };
-
-    private static readonly IReadOnlyList<string> AwaitUnequipHelpLines = new[]
-    {
-        "Awaiting hand selection",
-        "Press L or R to unequip"
-    };
-
     private readonly Dictionary<ConsoleKey, Func<GameContext, ModeResult>> _globalKeyMap;
     private readonly Dictionary<ConsoleKey, Func<GameContext, ModeResult>> _browseKeyMap;
     private readonly Dictionary<ConsoleKey, Func<GameContext, ModeResult>> _awaitUnequipKeyMap;
@@ -76,8 +64,6 @@ public sealed class InventoryMode : IGameMode
 
     public string Name => "INVENTORY";
 
-    public IReadOnlyList<string> HelpLines => _awaitingUnequipHand ? AwaitUnequipHelpLines : BrowseHelpLines;
-
     public void OnEnter(GameContext context)
     {
         _awaitingUnequipHand = false;
@@ -111,5 +97,37 @@ public sealed class InventoryMode : IGameMode
     private static ModeResult CloseInventory(GameContext context)
     {
         return ModeResult.SwitchTo(context.GameMode, "Inventory mode disabled.");
+    }
+
+    public IReadOnlyList<string> GetHelpLines(GameContext context)
+    {
+        if (_awaitingUnequipHand)
+        {
+            return
+            [
+                "Awaiting hand selection",
+                "Unequip: L/R",
+                "Close inventory: I/Esc"
+            ];
+        }
+
+        var helpLines = new List<string>
+        {
+            "Select: Up/Down or W/S",
+            "Close inventory: I/Esc"
+        };
+
+        if (context.Player.Inventory.Count > 0)
+        {
+            helpLines.Add("Drop: D");
+            helpLines.Add("Equip left/right: L/R");
+        }
+
+        if (context.Player.Equipment.LeftItem != null || context.Player.Equipment.RightItem != null)
+        {
+            helpLines.Add("Start unequip: U");
+        }
+
+        return helpLines;
     }
 }

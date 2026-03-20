@@ -4,6 +4,13 @@ namespace ConsoleRpgStage1.Game;
 
 public sealed class GameMode : IGameMode
 {
+    private static readonly IReadOnlyList<string> BaseHelpLines = new[]
+    {
+        "Move: WASD/arrows",
+        "Inventory: I",
+        "Quit: Q/Esc"
+    };
+
     private readonly Dictionary<ConsoleKey, Func<GameContext, ModeResult>> _keyMap;
 
     public GameMode()
@@ -24,21 +31,26 @@ public sealed class GameMode : IGameMode
             [ConsoleKey.RightArrow] = context => ModeResult.Continue(context.TryMove(Direction.Right))
         };
 
-        HelpLines = new[]
-        {
-            "WASD/arrows move",
-            "E pick up, I inventory, Q/Esc quit"
-        };
     }
 
     public string Name => "GAME";
-
-    public IReadOnlyList<string> HelpLines { get; }
 
     public ModeResult HandleKey(ConsoleKeyInfo key, GameContext context)
     {
         return _keyMap.TryGetValue(key.Key, out var command)
             ? command(context)
             : ModeResult.Continue("Unknown key in game mode.");
+    }
+
+    public IReadOnlyList<string> GetHelpLines(GameContext context)
+    {
+        var helpLines = new List<string>(BaseHelpLines);
+
+        if (context.World.GetItems(context.Player.Position).Count > 0)
+        {
+            helpLines.Add("Pick up: E");
+        }
+
+        return helpLines;
     }
 }
