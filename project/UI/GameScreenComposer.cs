@@ -36,9 +36,15 @@ public sealed class GameScreenComposer
             panelWidth);
         AppendWrappedLine(panelLines, $"Message: {context.LastMessage}", panelWidth);
 
-        foreach (var helpLine in context.CurrentMode.GetHelpLines(context))
+        var helpLines = context.CurrentMode.GetHelpLines(context);
+        if (helpLines.Count > 0)
         {
-            AppendWrappedLine(panelLines, $"Help: {helpLine}", panelWidth);
+            AppendWrappedLine(panelLines, "Help:", panelWidth);
+
+            foreach (var helpLine in helpLines)
+            {
+                AppendWrappedLine(panelLines, $"  {helpLine}", panelWidth);
+            }
         }
 
         if (ReferenceEquals(context.CurrentMode, context.InventoryMode))

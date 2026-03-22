@@ -6,8 +6,8 @@ using ConsoleRpgStage1.UI;
 using ConsoleRpgStage1.World;
 
 var worldFactory = new WorldFactory();
-var world = worldFactory.CreateDefault();
-var player = new Player(new Position(0, 0));
+var world = worldFactory.CreateDungeonGrounds();
+var player = new Player(new Position(world.Rows / 2, world.Cols / 2));
 var renderer = new Renderer();
 
 var gameMode = new GameMode();
