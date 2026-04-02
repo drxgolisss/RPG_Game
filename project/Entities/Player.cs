@@ -122,6 +122,14 @@ public sealed class Player
         Gold += amount;
     }
 
+    public int GetLuckModifier()
+    {
+        var leftLuck = Equipment.LeftItem?.GetLuckModifier() ?? 0;
+        var rightLuck = Equipment.RightItem?.GetLuckModifier() ?? 0;
+
+        return leftLuck + rightLuck;
+    }
+
     private bool IsValidInventoryIndex(int index)
     {
         return index >= 0 && index < _inventory.Count;

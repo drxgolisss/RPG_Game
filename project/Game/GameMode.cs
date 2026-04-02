@@ -1,17 +1,12 @@
 using ConsoleRpgStage1.Core;
+using ConsoleRpgStage1.Game.Instructions;
 
 namespace ConsoleRpgStage1.Game;
 
 public sealed class GameMode : IGameMode
 {
-    private static readonly IReadOnlyList<string> BaseHelpLines = new[]
-    {
-        "Move: WASD/arrows",
-        "Inventory: I",
-        "Quit: Q/Esc"
-    };
-
     private readonly Dictionary<ConsoleKey, Func<GameContext, ModeResult>> _keyMap;
+    private readonly InstructionBuilder _instructionBuilder;
 
     public GameMode()
     {
@@ -30,7 +25,12 @@ public sealed class GameMode : IGameMode
             [ConsoleKey.D] = context => ModeResult.Continue(context.TryMove(Direction.Right)),
             [ConsoleKey.RightArrow] = context => ModeResult.Continue(context.TryMove(Direction.Right))
         };
-
+        _instructionBuilder = new InstructionBuilder()
+            .StartWith(new BaseInstructionsProcedure(
+                "Move: WASD/arrows",
+                "Inventory: I",
+                "Quit: Q/Esc"))
+            .Apply(new PickupInstructionProcedure());
     }
 
     public string Name => "GAME";
@@ -44,13 +44,6 @@ public sealed class GameMode : IGameMode
 
     public IReadOnlyList<string> GetHelpLines(GameContext context)
     {
-        var helpLines = new List<string>(BaseHelpLines);
-
-        if (context.World.GetItems(context.Player.Position).Count > 0)
-        {
-            helpLines.Add("Pick up: E");
-        }
-
-        return helpLines;
+        return _instructionBuilder.Build(context);
     }
 }

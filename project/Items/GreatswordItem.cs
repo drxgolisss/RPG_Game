@@ -2,7 +2,7 @@ namespace ConsoleRpgStage1.Items;
 
 public sealed class GreatswordItem : Weapon
 {
-    public GreatswordItem() : base("Greatsword", '!', 15, HandRequirement.TwoHanded)
+    public GreatswordItem() : base("Greatsword", '!', 15, HandRequirement.TwoHanded, new ConsoleRpgStage1.Combat.HeavyWeaponCombatCategory())
     {
     }
 }

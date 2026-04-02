@@ -1,3 +1,5 @@
+using ConsoleRpgStage1.Game.Instructions;
+
 namespace ConsoleRpgStage1.Game;
 
 public sealed class InventoryMode : IGameMode
@@ -5,6 +7,8 @@ public sealed class InventoryMode : IGameMode
     private readonly Dictionary<ConsoleKey, Func<GameContext, ModeResult>> _globalKeyMap;
     private readonly Dictionary<ConsoleKey, Func<GameContext, ModeResult>> _browseKeyMap;
     private readonly Dictionary<ConsoleKey, Func<GameContext, ModeResult>> _awaitUnequipKeyMap;
+    private readonly InstructionBuilder _awaitUnequipInstructionBuilder;
+    private readonly InstructionBuilder _browseInstructionBuilder;
     private bool _awaitingUnequipHand;
 
     public InventoryMode()
@@ -60,6 +64,18 @@ public sealed class InventoryMode : IGameMode
                 return ModeResult.Continue(context.TryUnequipRight());
             }
         };
+        _browseInstructionBuilder = new InstructionBuilder()
+            .StartWith(new BaseInstructionsProcedure(
+                "Select: Up/Down or W/S",
+                "Close inventory: I/Esc"))
+            .Apply(new InventoryContentInstructionProcedure())
+            .Apply(new InventoryUnequipInstructionProcedure());
+
+        _awaitUnequipInstructionBuilder = new InstructionBuilder()
+            .StartWith(new BaseInstructionsProcedure(
+                "Awaiting hand selection",
+                "Unequip: L/R",
+                "Close inventory: I/Esc"));
     }
 
     public string Name => "INVENTORY";
@@ -103,31 +119,9 @@ public sealed class InventoryMode : IGameMode
     {
         if (_awaitingUnequipHand)
         {
-            return
-            [
-                "Awaiting hand selection",
-                "Unequip: L/R",
-                "Close inventory: I/Esc"
-            ];
+            return _awaitUnequipInstructionBuilder.Build(context);
         }
 
-        var helpLines = new List<string>
-        {
-            "Select: Up/Down or W/S",
-            "Close inventory: I/Esc"
-        };
-
-        if (context.Player.Inventory.Count > 0)
-        {
-            helpLines.Add("Drop: D");
-            helpLines.Add("Equip left/right: L/R");
-        }
-
-        if (context.Player.Equipment.LeftItem != null || context.Player.Equipment.RightItem != null)
-        {
-            helpLines.Add("Start unequip: U");
-        }
-
-        return helpLines;
+        return _browseInstructionBuilder.Build(context);
     }
 }

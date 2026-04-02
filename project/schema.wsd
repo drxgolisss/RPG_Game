@@ -1,0 +1,91 @@
+@startuml ewf
+top to bottom direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 70
+skinparam ranksep 70
+
+package "Modifiers" {
+  abstract class Item
+  abstract class Weapon
+  abstract class ItemModifier
+  class StrongModifier
+  class UnluckyModifier
+
+  Item <|-- Weapon
+  Item <|-- ItemModifier
+  ItemModifier <|-- StrongModifier
+  ItemModifier <|-- UnluckyModifier
+  ItemModifier o--> Item : wraps
+}
+
+package "Weapon Logic" {
+  interface IWeaponArchetype
+  class HeavyArchetype
+  class LightArchetype
+  class MagicalArchetype
+
+  IWeaponArchetype <|.. HeavyArchetype
+  IWeaponArchetype <|.. LightArchetype
+  IWeaponArchetype <|.. MagicalArchetype
+}
+
+package "Combat" {
+  interface IAttackStyle
+  class NormalAttack
+  class StealthAttack
+  class MagicalAttack
+  class CombatResolver
+  class CombatResult
+
+  IAttackStyle <|.. NormalAttack
+  IAttackStyle <|.. StealthAttack
+  IAttackStyle <|.. MagicalAttack
+}
+
+package "Entities" {
+  class Player
+  class Equipment
+  class Stats
+  class Enemy
+
+  Player *-- Equipment
+  Player *-- Stats
+}
+
+package "Generation" {
+  class AddItemsProcedure
+  class AddWeaponsProcedure
+  class AddEnemiesProcedure
+}
+
+Weapon --> IWeaponArchetype : uses
+Equipment o--> Item : equips
+CombatResolver --> Player
+CombatResolver --> Enemy
+CombatResolver --> IAttackStyle
+CombatResolver --> CombatResult
+
+AddItemsProcedure ..> Item
+AddWeaponsProcedure ..> Weapon
+AddEnemiesProcedure ..> Enemy
+
+note right of ItemModifier
+Decorator pattern:
+modifiers wrap an item
+and extend its behavior/name
+end note
+
+note right of IWeaponArchetype
+Weapon category logic
+is modeled as objects,
+not enums or RTTI
+end note
+
+note right of IAttackStyle
+Attack type is selected
+through strategy objects
+end note
+@enduml

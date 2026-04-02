@@ -4,17 +4,22 @@ namespace ConsoleRpgStage1.Items;
 
 public abstract class Item
 {
+    private readonly string _name;
+    private readonly char _symbol;
+
     protected Item(string name, char symbol)
     {
-        Name = name;
-        Symbol = symbol;
+        _name = name;
+        _symbol = symbol;
     }
 
-    public string Name { get; }
+    public virtual string Name => _name;
 
-    public char Symbol { get; }
+    public virtual char Symbol => _symbol;
 
     public virtual bool CanEquip => false;
+
+    public virtual int GetLuckModifier() => 0;
 
     public virtual void OnPickedUp(Player player)
     {

@@ -1,0 +1,28 @@
+namespace ConsoleRpgStage1.Combat;
+
+public sealed class CombatResult
+{
+    public CombatResult(
+        int damageToEnemy,
+        int damageToPlayer,
+        bool enemyDefeated,
+        bool playerDefeated,
+        string message)
+    {
+        DamageToEnemy = damageToEnemy;
+        DamageToPlayer = damageToPlayer;
+        EnemyDefeated = enemyDefeated;
+        PlayerDefeated = playerDefeated;
+        Message = message;
+    }
+
+    public int DamageToEnemy { get; }
+
+    public int DamageToPlayer { get; }
+
+    public bool EnemyDefeated { get; }
+
+    public bool PlayerDefeated { get; }
+
+    public string Message { get; }
+}

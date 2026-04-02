@@ -2,7 +2,7 @@ namespace ConsoleRpgStage1.Items;
 
 public sealed class ShortSwordItem : Weapon
 {
-    public ShortSwordItem() : base("Short Sword", '/', 8, HandRequirement.OneHanded)
+    public ShortSwordItem() : base("Short Sword", '/', 8, HandRequirement.OneHanded, new ConsoleRpgStage1.Combat.LightWeaponCombatCategory())
     {
     }
 }

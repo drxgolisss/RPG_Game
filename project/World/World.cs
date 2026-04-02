@@ -1,4 +1,5 @@
 using ConsoleRpgStage1.Core;
+using ConsoleRpgStage1.Entities;
 using ConsoleRpgStage1.Items;
 using ConsoleRpgStage1.World.Tiles;
 
@@ -68,6 +69,25 @@ public sealed class World
     {
         EnsureInBounds(p);
         _cells[p.Row, p.Col].AddItem(item);
+    }
+
+    public void AddEnemy(Position p, Enemy enemy)
+    {
+        EnsureInBounds(p);
+        enemy.SetPosition(p);
+        _cells[p.Row, p.Col].AddEnemy(enemy);
+    }
+
+    public IReadOnlyList<Enemy> GetEnemies(Position p)
+    {
+        EnsureInBounds(p);
+        return _cells[p.Row, p.Col].Enemies;
+    }
+
+    public bool RemoveEnemy(Position p, Enemy enemy)
+    {
+        EnsureInBounds(p);
+        return _cells[p.Row, p.Col].RemoveEnemy(enemy);
     }
 
     public IReadOnlyList<Item> GetItems(Position p)
