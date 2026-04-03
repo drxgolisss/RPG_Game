@@ -11,7 +11,7 @@ public abstract class CurrencyItem : Item
 
     public int Amount { get; }
 
-    public sealed override void OnPickedUp(Player player)
+    internal sealed override void HandlePickup(Player player, Item pickedUpItem)
     {
         Deposit(player);
     }

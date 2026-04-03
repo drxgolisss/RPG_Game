@@ -23,12 +23,17 @@ public abstract class Item
 
     public virtual void OnPickedUp(Player player)
     {
-        player.AddToInventory(this);
+        HandlePickup(player, this);
     }
 
     public virtual EquipResult TryEquip(Player player, Hand hand)
     {
         return EquipResult.Fail($"Cannot equip {Name}.");
+    }
+
+    internal virtual void HandlePickup(Player player, Item pickedUpItem)
+    {
+        player.AddToInventory(pickedUpItem);
     }
 
     public override string ToString() => $"{Name} ({Symbol})";

@@ -1,4 +1,5 @@
 using ConsoleRpgStage1.Items;
+using ConsoleRpgStage1.Items.Modifiers;
 
 namespace ConsoleRpgStage1.World.Building;
 
@@ -52,6 +53,13 @@ public sealed class AddItemsProcedure : IDungeonBuildProcedure
     private Item CreateRandomItem()
     {
         var factory = _itemFactories[_random.Next(_itemFactories.Length)];
-        return factory();
+        var item = factory();
+
+        if (_random.Next(0, 2) == 0)
+        {
+            return item;
+        }
+
+        return new UnluckyModifier(item);
     }
 }

@@ -7,14 +7,13 @@ public abstract class WeaponModifier : Weapon
 {
     protected WeaponModifier(Weapon innerWeapon, string modifierName)
         : base(
-            innerWeapon.Name,
+            GetInnerWeapon(innerWeapon).Name,
             innerWeapon.Symbol,
             innerWeapon.Damage,
             innerWeapon.HandRequirement,
             innerWeapon.CombatCategory,
             innerWeapon.Defense)
     {
-        ArgumentNullException.ThrowIfNull(innerWeapon);
         ArgumentException.ThrowIfNullOrWhiteSpace(modifierName);
 
         InnerWeapon = innerWeapon;
@@ -46,5 +45,11 @@ public abstract class WeaponModifier : Weapon
     public override int GetLuckModifier()
     {
         return InnerWeapon.GetLuckModifier();
+    }
+
+    private static Weapon GetInnerWeapon(Weapon innerWeapon)
+    {
+        ArgumentNullException.ThrowIfNull(innerWeapon);
+        return innerWeapon;
     }
 }

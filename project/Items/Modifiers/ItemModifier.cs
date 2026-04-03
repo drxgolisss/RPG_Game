@@ -3,9 +3,8 @@ namespace ConsoleRpgStage1.Items.Modifiers;
 public abstract class ItemModifier : Item
 {
     protected ItemModifier(Item innerItem, string modifierName)
-        : base(innerItem.Name, innerItem.Symbol)
+        : base(GetInnerItem(innerItem).Name, innerItem.Symbol)
     {
-        ArgumentNullException.ThrowIfNull(innerItem);
         ArgumentException.ThrowIfNullOrWhiteSpace(modifierName);
 
         InnerItem = innerItem;
@@ -24,7 +23,7 @@ public abstract class ItemModifier : Item
 
     public override void OnPickedUp(Entities.Player player)
     {
-        InnerItem.OnPickedUp(player);
+        InnerItem.HandlePickup(player, this);
     }
 
     public override Entities.EquipResult TryEquip(Entities.Player player, Entities.Hand hand)
@@ -35,5 +34,11 @@ public abstract class ItemModifier : Item
     public override int GetLuckModifier()
     {
         return InnerItem.GetLuckModifier();
+    }
+
+    private static Item GetInnerItem(Item innerItem)
+    {
+        ArgumentNullException.ThrowIfNull(innerItem);
+        return innerItem;
     }
 }

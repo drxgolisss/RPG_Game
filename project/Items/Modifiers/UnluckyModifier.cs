@@ -1,10 +1,10 @@
 namespace ConsoleRpgStage1.Items.Modifiers;
 
-public sealed class UnluckyModifier : WeaponModifier
+public sealed class UnluckyModifier : ItemModifier
 {
-    public UnluckyModifier(Weapon innerWeapon) : base(innerWeapon, "Unlucky")
+    public UnluckyModifier(Item innerItem) : base(innerItem, "Unlucky")
     {
     }
 
-    public override int GetLuckModifier() => InnerWeapon.GetLuckModifier() - 5;
+    public override int GetLuckModifier() => InnerItem.GetLuckModifier() - 5;
 }
