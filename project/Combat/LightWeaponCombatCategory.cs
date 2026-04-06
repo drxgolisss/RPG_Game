@@ -9,11 +9,11 @@ public sealed class LightWeaponCombatCategory : IWeaponCombatCategory
 
     public int CalculateAttackDamage(Weapon weapon, Player player, IAttackStyle attackStyle)
     {
-        return weapon.GetDamageValue();
+        return attackStyle.CalculateAttackDamageForLightWeapon(weapon, player);
     }
 
     public int CalculateDefenseStrength(Weapon weapon, Player player, IAttackStyle attackStyle)
     {
-        return weapon.GetDefenseValue() + player.Stats.Dexterity;
+        return attackStyle.CalculateDefenseStrengthForLightWeapon(weapon, player);
     }
 }

@@ -40,6 +40,14 @@ try
 
         if (context.ApplyResult(result))
         {
+            if (result.Message != null)
+            {
+                var finalFrame = screenComposer.Build(context);
+                Console.SetCursorPosition(0, 0);
+                Console.Write(finalFrame);
+                Console.SetCursorPosition(0, screenComposer.GetSafeCursorRow(context));
+            }
+
             break;
         }
     }

@@ -1,9 +1,13 @@
+using ConsoleRpgStage1.Game.Controls;
 using ConsoleRpgStage1.Game.Instructions;
 
 namespace ConsoleRpgStage1.Game;
 
 public sealed class InventoryMode : IGameMode
 {
+    private readonly IReadOnlyList<ModeActionBinding> _awaitUnequipBindings;
+    private readonly IReadOnlyList<ModeActionBinding> _browseBindings;
+    private readonly IReadOnlyList<ModeActionBinding> _globalBindings;
     private readonly Dictionary<ConsoleKey, Func<GameContext, ModeResult>> _globalKeyMap;
     private readonly Dictionary<ConsoleKey, Func<GameContext, ModeResult>> _browseKeyMap;
     private readonly Dictionary<ConsoleKey, Func<GameContext, ModeResult>> _awaitUnequipKeyMap;
@@ -13,69 +17,88 @@ public sealed class InventoryMode : IGameMode
 
     public InventoryMode()
     {
-        _globalKeyMap = new Dictionary<ConsoleKey, Func<GameContext, ModeResult>>
-        {
-            [ConsoleKey.I] = context => CloseInventory(context),
-            [ConsoleKey.Escape] = context => CloseInventory(context)
-        };
+        _globalBindings =
+        [
+            new ModeActionBinding(
+                "Close inventory",
+                [ConsoleKey.I, ConsoleKey.Escape],
+                context => CloseInventory(context))
+        ];
 
-        _browseKeyMap = new Dictionary<ConsoleKey, Func<GameContext, ModeResult>>
-        {
-            [ConsoleKey.UpArrow] = context =>
-            {
-                context.MoveSelectionUp();
-                return ModeResult.Continue();
-            },
-            [ConsoleKey.W] = context =>
-            {
-                context.MoveSelectionUp();
-                return ModeResult.Continue();
-            },
-            [ConsoleKey.DownArrow] = context =>
-            {
-                context.MoveSelectionDown();
-                return ModeResult.Continue();
-            },
-            [ConsoleKey.S] = context =>
-            {
-                context.MoveSelectionDown();
-                return ModeResult.Continue();
-            },
-            [ConsoleKey.D] = context => ModeResult.Continue(context.TryDropSelectedItem()),
-            [ConsoleKey.L] = context => ModeResult.Continue(context.TryEquipSelectedLeft()),
-            [ConsoleKey.R] = context => ModeResult.Continue(context.TryEquipSelectedRight()),
-            [ConsoleKey.U] = _ =>
-            {
-                _awaitingUnequipHand = true;
-                return ModeResult.Continue("Choose hand to unequip: L or R.");
-            }
-        };
+        _browseBindings =
+        [
+            new ModeActionBinding(
+                "Select previous",
+                [ConsoleKey.UpArrow, ConsoleKey.W],
+                context =>
+                {
+                    context.MoveSelectionUp();
+                    return ModeResult.Continue();
+                }),
+            new ModeActionBinding(
+                "Select next",
+                [ConsoleKey.DownArrow, ConsoleKey.S],
+                context =>
+                {
+                    context.MoveSelectionDown();
+                    return ModeResult.Continue();
+                }),
+            new ModeActionBinding(
+                "Drop",
+                [ConsoleKey.D],
+                context => ModeResult.Continue(context.TryDropSelectedItem()),
+                context => context.Player.Inventory.Count > 0),
+            new ModeActionBinding(
+                "Equip left",
+                [ConsoleKey.L],
+                context => ModeResult.Continue(context.TryEquipSelectedLeft()),
+                context => context.Player.Inventory.Count > 0),
+            new ModeActionBinding(
+                "Equip right",
+                [ConsoleKey.R],
+                context => ModeResult.Continue(context.TryEquipSelectedRight()),
+                context => context.Player.Inventory.Count > 0),
+            new ModeActionBinding(
+                "Start unequip",
+                [ConsoleKey.U],
+                _ =>
+                {
+                    _awaitingUnequipHand = true;
+                    return ModeResult.Continue("Choose hand to unequip: L or R.");
+                },
+                context => context.Player.Equipment.LeftItem != null || context.Player.Equipment.RightItem != null)
+        ];
 
-        _awaitUnequipKeyMap = new Dictionary<ConsoleKey, Func<GameContext, ModeResult>>
-        {
-            [ConsoleKey.L] = context =>
-            {
-                _awaitingUnequipHand = false;
-                return ModeResult.Continue(context.TryUnequipLeft());
-            },
-            [ConsoleKey.R] = context =>
-            {
-                _awaitingUnequipHand = false;
-                return ModeResult.Continue(context.TryUnequipRight());
-            }
-        };
+        _awaitUnequipBindings =
+        [
+            new ModeActionBinding(
+                "Unequip left",
+                [ConsoleKey.L],
+                context =>
+                {
+                    _awaitingUnequipHand = false;
+                    return ModeResult.Continue(context.TryUnequipLeft());
+                }),
+            new ModeActionBinding(
+                "Unequip right",
+                [ConsoleKey.R],
+                context =>
+                {
+                    _awaitingUnequipHand = false;
+                    return ModeResult.Continue(context.TryUnequipRight());
+                })
+        ];
+
+        _globalKeyMap = BuildKeyMap(_globalBindings);
+        _browseKeyMap = BuildKeyMap(_browseBindings);
+        _awaitUnequipKeyMap = BuildKeyMap(_awaitUnequipBindings);
+
         _browseInstructionBuilder = new InstructionBuilder()
-            .StartWith(new BaseInstructionsProcedure(
-                "Select: Up/Down or W/S",
-                "Close inventory: I/Esc"))
-            .Apply(new InventoryContentInstructionProcedure())
-            .Apply(new InventoryUnequipInstructionProcedure());
+            .StartWith(new ActionBindingsInstructionProcedure(() => _browseBindings.Concat(_globalBindings).ToArray()));
 
         _awaitUnequipInstructionBuilder = new InstructionBuilder()
-            .StartWith(new BaseInstructionsProcedure(
-                "Awaiting hand selection",
-                "Unequip: L/R",
-                "Close inventory: I/Esc"));
+            .StartWith(new BaseInstructionsProcedure("Awaiting hand selection"))
+            .Apply(new ActionBindingsInstructionProcedure(() => _awaitUnequipBindings.Concat(_globalBindings).ToArray()));
     }
 
     public string Name => "INVENTORY";
@@ -123,5 +146,20 @@ public sealed class InventoryMode : IGameMode
         }
 
         return _browseInstructionBuilder.Build(context);
+    }
+
+    private static Dictionary<ConsoleKey, Func<GameContext, ModeResult>> BuildKeyMap(IEnumerable<ModeActionBinding> bindings)
+    {
+        var keyMap = new Dictionary<ConsoleKey, Func<GameContext, ModeResult>>();
+
+        foreach (var binding in bindings)
+        {
+            foreach (var key in binding.Keys)
+            {
+                keyMap[key] = binding.Execute;
+            }
+        }
+
+        return keyMap;
     }
 }

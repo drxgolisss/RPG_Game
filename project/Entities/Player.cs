@@ -122,6 +122,13 @@ public sealed class Player
         Gold += amount;
     }
 
+    public void ApplyDamage(int damage)
+    {
+        Stats.Health = Math.Max(0, Stats.Health - Math.Max(0, damage));
+    }
+
+    public bool IsDead => Stats.Health <= 0;
+
     public int GetLuckModifier()
     {
         var leftLuck = Equipment.LeftItem?.GetLuckModifier() ?? 0;

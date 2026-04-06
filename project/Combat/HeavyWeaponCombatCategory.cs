@@ -9,11 +9,11 @@ public sealed class HeavyWeaponCombatCategory : IWeaponCombatCategory
 
     public int CalculateAttackDamage(Weapon weapon, Player player, IAttackStyle attackStyle)
     {
-        return weapon.GetDamageValue();
+        return attackStyle.CalculateAttackDamageForHeavyWeapon(weapon, player);
     }
 
     public int CalculateDefenseStrength(Weapon weapon, Player player, IAttackStyle attackStyle)
     {
-        return weapon.GetDefenseValue() + player.Stats.Strength;
+        return attackStyle.CalculateDefenseStrengthForHeavyWeapon(weapon, player);
     }
 }

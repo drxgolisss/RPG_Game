@@ -25,6 +25,8 @@ public sealed class Renderer
 
                 var symbol = player != null && player.Position == currentPosition
                     ? '¶'
+                    : cell.Enemies.Count > 0
+                        ? cell.Enemies[0].Symbol
                     : cell.Items.Count > 0
                         ? cell.Items[0].Symbol
                         : cell.Tile.Symbol;

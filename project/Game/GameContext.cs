@@ -1,4 +1,5 @@
 using ConsoleRpgStage1.Core;
+using ConsoleRpgStage1.Combat;
 using ConsoleRpgStage1.Entities;
 using ConsoleRpgStage1.UI;
 using GameWorld = ConsoleRpgStage1.World.World;
@@ -7,6 +8,19 @@ namespace ConsoleRpgStage1.Game;
 
 public sealed class GameContext
 {
+    private static readonly IAttackStyle NormalAttackStyle = new NormalAttackStyle();
+    private static readonly IAttackStyle StealthAttackStyle = new StealthAttackStyle();
+    private static readonly IAttackStyle MagicalAttackStyle = new MagicalAttackStyle();
+    private static readonly IReadOnlyList<Direction> CombatDirections =
+    [
+        Direction.Up,
+        Direction.Down,
+        Direction.Left,
+        Direction.Right
+    ];
+
+    private readonly CombatResolver _combatResolver;
+
     public GameContext(
         GameWorld world,
         Player player,
@@ -22,6 +36,7 @@ public sealed class GameContext
         InventoryMode = inventoryMode;
         CurrentMode = gameMode;
         LastMessage = initialMessage;
+        _combatResolver = new CombatResolver();
     }
 
     public GameWorld World { get; }
@@ -155,5 +170,106 @@ public sealed class GameContext
     public string TryPickUp()
     {
         return Player.TryPickUp(World) ? "Picked up item." : "No items to pick up.";
+    }
+
+    public bool HasEnemyNearby()
+    {
+        return TryFindAdjacentEnemy(out _);
+    }
+
+    public ModeResult TryNormalAttack()
+    {
+        return ResolveCombatTurn(NormalAttackStyle);
+    }
+
+    public ModeResult TryStealthAttack()
+    {
+        return ResolveCombatTurn(StealthAttackStyle);
+    }
+
+    public ModeResult TryMagicalAttack()
+    {
+        return ResolveCombatTurn(MagicalAttackStyle);
+    }
+
+    private ModeResult ResolveCombatTurn(IAttackStyle attackStyle)
+    {
+        if (!TryFindAdjacentEnemy(out var enemy))
+        {
+            return ModeResult.Continue("No enemy nearby.");
+        }
+
+        var combatResult = _combatResolver.ResolveTurn(Player, enemy, attackStyle);
+
+        if (combatResult.EnemyDefeated)
+        {
+            World.RemoveEnemy(enemy.Position, enemy);
+        }
+
+        var message = BuildCombatMessage(enemy, attackStyle, combatResult);
+
+        if (combatResult.PlayerDefeated)
+        {
+            return ModeResult.Exit(message);
+        }
+
+        return ModeResult.Continue(message);
+    }
+
+    private string BuildCombatMessage(Enemy enemy, IAttackStyle attackStyle, CombatResult combatResult)
+    {
+        var parts = new List<string>
+        {
+            $"Used {attackStyle.Name.ToLowerInvariant()} attack.",
+            $"Enemy took {combatResult.DamageToEnemy} damage."
+        };
+
+        if (combatResult.EnemyDefeated)
+        {
+            parts.Add("Enemy defeated.");
+        }
+        else
+        {
+            parts.Add($"Enemy HP: {enemy.Health}.");
+            parts.Add($"You took {combatResult.DamageToPlayer} damage.");
+        }
+
+        if (combatResult.PlayerDefeated)
+        {
+            parts.Add("Game over: you were defeated.");
+        }
+        else
+        {
+            parts.Add($"Your HP: {Player.Stats.Health}.");
+        }
+
+        return string.Join(" ", parts);
+    }
+
+    private bool TryFindAdjacentEnemy(out Enemy enemy)
+    {
+        foreach (var direction in CombatDirections)
+        {
+            var position = new Position(
+                Player.Position.Row + direction.DeltaRow,
+                Player.Position.Col + direction.DeltaCol);
+
+            if (!World.InBounds(position))
+            {
+                continue;
+            }
+
+            var enemies = World.GetEnemies(position);
+            if (enemies.Count == 0)
+            {
+                continue;
+            }
+
+            enemy = enemies[0];
+            return true;
+        }
+
+        enemy = null!;
+        return false;
     }
 }

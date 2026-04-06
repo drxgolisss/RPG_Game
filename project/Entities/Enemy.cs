@@ -35,6 +35,8 @@ public sealed class Enemy
 
     public Position Position { get; private set; }
 
+    public char Symbol => 'E';
+
     public bool IsDead => Health <= 0;
 
     public void ApplyDamage(int damage)

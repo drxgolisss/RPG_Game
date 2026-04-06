@@ -5,6 +5,7 @@ public sealed class DungeonGroundsStrategy : IDungeonBuildStrategy
     private readonly int _centralRoomHeight;
     private readonly int _centralRoomWidth;
     private readonly int _chambersCount;
+    private readonly int _enemiesCount;
     private readonly int _itemsCount;
     private readonly int _pathsCount;
     private readonly int _weaponsCount;
@@ -14,6 +15,7 @@ public sealed class DungeonGroundsStrategy : IDungeonBuildStrategy
         int centralRoomHeight = 6,
         int chambersCount = 5,
         int pathsCount = 8,
+        int enemiesCount = 4,
         int itemsCount = 6,
         int weaponsCount = 3)
     {
@@ -37,6 +39,11 @@ public sealed class DungeonGroundsStrategy : IDungeonBuildStrategy
             throw new ArgumentOutOfRangeException(nameof(pathsCount), "Paths count cannot be negative.");
         }
 
+        if (enemiesCount < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(enemiesCount), "Enemies count cannot be negative.");
+        }
+
         if (itemsCount < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(itemsCount), "Items count cannot be negative.");
@@ -51,6 +58,7 @@ public sealed class DungeonGroundsStrategy : IDungeonBuildStrategy
         _centralRoomHeight = centralRoomHeight;
         _chambersCount = chambersCount;
         _pathsCount = pathsCount;
+        _enemiesCount = enemiesCount;
         _itemsCount = itemsCount;
         _weaponsCount = weaponsCount;
     }
@@ -64,6 +72,7 @@ public sealed class DungeonGroundsStrategy : IDungeonBuildStrategy
             .Apply(new AddCentralRoomProcedure(_centralRoomWidth, _centralRoomHeight))
             .Apply(new AddChambersProcedure(_chambersCount))
             .Apply(new AddPathsProcedure(_pathsCount))
+            .Apply(new AddEnemiesProcedure(_enemiesCount))
             .Apply(new AddItemsProcedure(_itemsCount))
             .Apply(new AddWeaponsProcedure(_weaponsCount));
     }
