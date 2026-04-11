@@ -32,16 +32,18 @@ public abstract class Weapon : Item
 
     public override bool CanEquip => true;
 
+    public override bool OccupiesBothHands => HandRequirement == HandRequirement.TwoHanded;
+
     public virtual int GetDamageValue() => Damage;
 
     public virtual int GetDefenseValue() => Defense;
 
-    public virtual int GetAttackDamage(Player player, IAttackStyle attackStyle)
+    public override int GetAttackDamage(Player player, IAttackStyle attackStyle)
     {
         return CombatCategory.CalculateAttackDamage(this, player, attackStyle);
     }
 
-    public virtual int GetDefenseStrength(Player player, IAttackStyle attackStyle)
+    public override int GetDefenseStrength(Player player, IAttackStyle attackStyle)
     {
         return CombatCategory.CalculateDefenseStrength(this, player, attackStyle);
     }

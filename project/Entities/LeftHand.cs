@@ -8,9 +8,9 @@ public sealed class LeftHand : Hand
     {
     }
 
-    public override EquipResult TryEquip(Equipment equipment, Weapon weapon)
+    public override EquipResult TryEquip(Equipment equipment, Item item)
     {
-        return equipment.TryEquipLeft(weapon);
+        return equipment.TryEquipLeft(item);
     }
 
     public override EquipResult TryUnequip(Player player, Equipment equipment)

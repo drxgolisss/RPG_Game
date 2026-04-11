@@ -1,3 +1,4 @@
+using ConsoleRpgStage1.Combat;
 using ConsoleRpgStage1.Entities;
 
 namespace ConsoleRpgStage1.Items;
@@ -19,7 +20,19 @@ public abstract class Item
 
     public virtual bool CanEquip => false;
 
+    public virtual bool OccupiesBothHands => false;
+
     public virtual int GetLuckModifier() => 0;
+
+    public virtual int GetAttackDamage(Player player, IAttackStyle attackStyle)
+    {
+        return attackStyle.CalculateAttackDamageForOtherItem(this, player);
+    }
+
+    public virtual int GetDefenseStrength(Player player, IAttackStyle attackStyle)
+    {
+        return attackStyle.CalculateDefenseStrengthForOtherItem(this, player);
+    }
 
     public virtual void OnPickedUp(Player player)
     {

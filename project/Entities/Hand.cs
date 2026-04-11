@@ -11,7 +11,7 @@ public abstract class Hand
 
     public string Name { get; }
 
-    public abstract EquipResult TryEquip(Equipment equipment, Weapon weapon);
+    public abstract EquipResult TryEquip(Equipment equipment, Item item);
 
     public abstract EquipResult TryUnequip(Player player, Equipment equipment);
 }

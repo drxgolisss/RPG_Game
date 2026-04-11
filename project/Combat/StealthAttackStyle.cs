@@ -9,12 +9,12 @@ public sealed class StealthAttackStyle : AttackStyleBase
 
     public override int CalculateAttackDamageForHeavyWeapon(Weapon weapon, Player player)
     {
-        return weapon.GetDamageValue() / 2;
+        return GetHeavyWeaponDamage(weapon, player) / 2;
     }
 
     public override int CalculateAttackDamageForLightWeapon(Weapon weapon, Player player)
     {
-        return weapon.GetDamageValue() * 2;
+        return GetLightWeaponDamage(weapon, player) * 2;
     }
 
     public override int CalculateAttackDamageForMagicalWeapon(Weapon weapon, Player player)
@@ -27,18 +27,23 @@ public sealed class StealthAttackStyle : AttackStyleBase
         return 0;
     }
 
+    public override int CalculateDefenseStrengthForOtherItem(Item item, Player player)
+    {
+        return 0;
+    }
+
     public override int CalculateDefenseStrengthForHeavyWeapon(Weapon weapon, Player player)
     {
-        return Math.Max(0, player.Stats.Strength);
+        return WithWeaponDefense(weapon, player.Stats.Strength);
     }
 
     public override int CalculateDefenseStrengthForLightWeapon(Weapon weapon, Player player)
     {
-        return Math.Max(0, player.Stats.Dexterity);
+        return WithWeaponDefense(weapon, player.Stats.Dexterity);
     }
 
     public override int CalculateDefenseStrengthForMagicalWeapon(Weapon weapon, Player player)
     {
-        return 0;
+        return WithWeaponDefense(weapon, 0);
     }
 }

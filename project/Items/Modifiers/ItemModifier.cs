@@ -21,6 +21,18 @@ public abstract class ItemModifier : Item
 
     public override bool CanEquip => InnerItem.CanEquip;
 
+    public override bool OccupiesBothHands => InnerItem.OccupiesBothHands;
+
+    public override int GetAttackDamage(Entities.Player player, Combat.IAttackStyle attackStyle)
+    {
+        return InnerItem.GetAttackDamage(player, attackStyle);
+    }
+
+    public override int GetDefenseStrength(Entities.Player player, Combat.IAttackStyle attackStyle)
+    {
+        return InnerItem.GetDefenseStrength(player, attackStyle);
+    }
+
     public override void OnPickedUp(Entities.Player player)
     {
         InnerItem.HandlePickup(player, this);

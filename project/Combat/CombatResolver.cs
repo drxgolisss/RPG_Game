@@ -10,13 +10,13 @@ public sealed class CombatResolver
         ArgumentNullException.ThrowIfNull(enemy);
         ArgumentNullException.ThrowIfNull(attackStyle);
 
-        var weapon = player.Equipment.LeftItem ?? player.Equipment.RightItem;
-        var attackDamage = weapon?.GetAttackDamage(player, attackStyle) ?? attackStyle.CalculateAttackDamageWithoutWeapon(player);
+        var heldItem = player.Equipment.LeftItem ?? player.Equipment.RightItem;
+        var attackDamage = heldItem?.GetAttackDamage(player, attackStyle) ?? attackStyle.CalculateAttackDamageWithoutWeapon(player);
         var damageToEnemy = Math.Max(0, attackDamage - enemy.Armor);
         enemy.ApplyDamage(damageToEnemy);
         var enemyDefeated = enemy.IsDead;
 
-        var playerDefense = weapon?.GetDefenseStrength(player, attackStyle) ?? attackStyle.CalculateDefenseStrengthWithoutWeapon(player);
+        var playerDefense = heldItem?.GetDefenseStrength(player, attackStyle) ?? attackStyle.CalculateDefenseStrengthWithoutWeapon(player);
         var damageToPlayer = enemyDefeated ? 0 : Math.Max(0, enemy.Attack - playerDefense);
         player.ApplyDamage(damageToPlayer);
         var playerDefeated = player.IsDead;

@@ -3,16 +3,16 @@ namespace ConsoleRpgStage1.Entities;
 
 public sealed class Equipment
 {
-    private Weapon? _leftItem;
-    private Weapon? _rightItem;
+    private Item? _leftItem;
+    private Item? _rightItem;
 
-    public Weapon? LeftItem => _leftItem;
+    public Item? LeftItem => _leftItem;
 
-    public Weapon? RightItem => _rightItem;
+    public Item? RightItem => _rightItem;
 
-    public EquipResult TryEquip(Weapon weapon, Hand hand)
+    public EquipResult TryEquip(Item item, Hand hand)
     {
-        return hand.TryEquip(this, weapon);
+        return hand.TryEquip(this, item);
     }
 
     public EquipResult TryUnequip(Player player, Hand hand)
@@ -20,16 +20,16 @@ public sealed class Equipment
         return hand.TryUnequip(player, this);
     }
 
-    public EquipResult TryEquipLeft(Weapon weapon)
+    public EquipResult TryEquipLeft(Item item)
     {
-        if (weapon.HandRequirement == HandRequirement.TwoHanded)
+        if (item.OccupiesBothHands)
         {
-            return TryEquipTwoHanded(weapon);
+            return TryEquipTwoHanded(item);
         }
 
         if (HasTwoHandedEquipped())
         {
-            return EquipResult.Fail("Cannot equip one-handed weapon: both hands are occupied by two-handed weapon.");
+            return EquipResult.Fail("Cannot equip item: both hands are occupied by two-handed item.");
         }
 
         if (_leftItem != null)
@@ -37,20 +37,20 @@ public sealed class Equipment
             return EquipResult.Fail("Left hand is already occupied.");
         }
 
-        _leftItem = weapon;
-        return EquipResult.Success($"Equipped {weapon.Name} in left hand.");
+        _leftItem = item;
+        return EquipResult.Success($"Equipped {item.Name} in left hand.");
     }
 
-    public EquipResult TryEquipRight(Weapon weapon)
+    public EquipResult TryEquipRight(Item item)
     {
-        if (weapon.HandRequirement == HandRequirement.TwoHanded)
+        if (item.OccupiesBothHands)
         {
-            return TryEquipTwoHanded(weapon);
+            return TryEquipTwoHanded(item);
         }
 
         if (HasTwoHandedEquipped())
         {
-            return EquipResult.Fail("Cannot equip one-handed weapon: both hands are occupied by two-handed weapon.");
+            return EquipResult.Fail("Cannot equip item: both hands are occupied by two-handed item.");
         }
 
         if (_rightItem != null)
@@ -58,8 +58,8 @@ public sealed class Equipment
             return EquipResult.Fail("Right hand is already occupied.");
         }
 
-        _rightItem = weapon;
-        return EquipResult.Success($"Equipped {weapon.Name} in right hand.");
+        _rightItem = item;
+        return EquipResult.Success($"Equipped {item.Name} in right hand.");
     }
 
     public EquipResult TryUnequipLeft(Player player)
@@ -75,7 +75,7 @@ public sealed class Equipment
             _leftItem = null;
             _rightItem = null;
             player.AddToInventory(removedItem);
-            return EquipResult.Success($"Unequipped two-handed weapon {removedItem.Name}.");
+            return EquipResult.Success($"Unequipped two-handed item {removedItem.Name}.");
         }
 
         _leftItem = null;
@@ -96,7 +96,7 @@ public sealed class Equipment
             _leftItem = null;
             _rightItem = null;
             player.AddToInventory(removedItem);
-            return EquipResult.Success($"Unequipped two-handed weapon {removedItem.Name}.");
+            return EquipResult.Success($"Unequipped two-handed item {removedItem.Name}.");
         }
 
         _rightItem = null;
@@ -104,16 +104,16 @@ public sealed class Equipment
         return EquipResult.Success($"Unequipped {removedItem.Name} from right hand.");
     }
 
-    private EquipResult TryEquipTwoHanded(Weapon weapon)
+    private EquipResult TryEquipTwoHanded(Item item)
     {
         if (_leftItem != null || _rightItem != null)
         {
-            return EquipResult.Fail("Cannot equip two-handed weapon: hands are not free.");
+            return EquipResult.Fail("Cannot equip two-handed item: hands are not free.");
         }
 
-        _leftItem = weapon;
-        _rightItem = weapon;
-        return EquipResult.Success($"Equipped two-handed weapon {weapon.Name}.");
+        _leftItem = item;
+        _rightItem = item;
+        return EquipResult.Success($"Equipped two-handed item {item.Name}.");
     }
 
     private bool HasTwoHandedEquipped()
@@ -121,6 +121,6 @@ public sealed class Equipment
         return _leftItem != null &&
                _rightItem != null &&
                ReferenceEquals(_leftItem, _rightItem) &&
-               (_leftItem.HandRequirement == HandRequirement.TwoHanded || _rightItem.HandRequirement == HandRequirement.TwoHanded);
+               (_leftItem.OccupiesBothHands || _rightItem.OccupiesBothHands);
     }
 }

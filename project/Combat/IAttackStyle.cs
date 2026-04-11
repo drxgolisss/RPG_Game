@@ -9,6 +9,8 @@ public interface IAttackStyle
 
     int CalculateAttackDamageWithoutWeapon(Player player);
 
+    int CalculateAttackDamageForOtherItem(Item item, Player player);
+
     int CalculateAttackDamageForHeavyWeapon(Weapon weapon, Player player);
 
     int CalculateAttackDamageForLightWeapon(Weapon weapon, Player player);
@@ -16,6 +18,8 @@ public interface IAttackStyle
     int CalculateAttackDamageForMagicalWeapon(Weapon weapon, Player player);
 
     int CalculateDefenseStrengthWithoutWeapon(Player player);
+
+    int CalculateDefenseStrengthForOtherItem(Item item, Player player);
 
     int CalculateDefenseStrengthForHeavyWeapon(Weapon weapon, Player player);
 

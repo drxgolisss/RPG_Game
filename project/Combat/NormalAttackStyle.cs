@@ -9,12 +9,12 @@ public sealed class NormalAttackStyle : AttackStyleBase
 
     public override int CalculateAttackDamageForHeavyWeapon(Weapon weapon, Player player)
     {
-        return weapon.GetDamageValue();
+        return GetHeavyWeaponDamage(weapon, player);
     }
 
     public override int CalculateAttackDamageForLightWeapon(Weapon weapon, Player player)
     {
-        return weapon.GetDamageValue();
+        return GetLightWeaponDamage(weapon, player);
     }
 
     public override int CalculateAttackDamageForMagicalWeapon(Weapon weapon, Player player)
@@ -27,18 +27,23 @@ public sealed class NormalAttackStyle : AttackStyleBase
         return Math.Max(0, player.Stats.Dexterity);
     }
 
+    public override int CalculateDefenseStrengthForOtherItem(Item item, Player player)
+    {
+        return Math.Max(0, player.Stats.Dexterity);
+    }
+
     public override int CalculateDefenseStrengthForHeavyWeapon(Weapon weapon, Player player)
     {
-        return Math.Max(0, player.Stats.Strength + GetEffectiveLuck(player));
+        return WithWeaponDefense(weapon, player.Stats.Strength + GetEffectiveLuck(player));
     }
 
     public override int CalculateDefenseStrengthForLightWeapon(Weapon weapon, Player player)
     {
-        return Math.Max(0, player.Stats.Dexterity + GetEffectiveLuck(player));
+        return WithWeaponDefense(weapon, player.Stats.Dexterity + GetEffectiveLuck(player));
     }
 
     public override int CalculateDefenseStrengthForMagicalWeapon(Weapon weapon, Player player)
     {
-        return Math.Max(0, player.Stats.Dexterity + GetEffectiveLuck(player));
+        return WithWeaponDefense(weapon, player.Stats.Dexterity + GetEffectiveLuck(player));
     }
 }
