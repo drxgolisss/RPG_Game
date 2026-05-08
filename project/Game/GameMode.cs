@@ -1,6 +1,7 @@
 using ConsoleRpgStage1.Core;
 using ConsoleRpgStage1.Game.Controls;
 using ConsoleRpgStage1.Game.Instructions;
+using ConsoleRpgStage1.Logging;
 
 namespace ConsoleRpgStage1.Game;
 
@@ -55,6 +56,10 @@ public sealed class GameMode : IGameMode
                 [ConsoleKey.I],
                 context => ModeResult.SwitchTo(context.InventoryMode, "Inventory mode enabled.")),
             new ModeActionBinding(
+                "Event log",
+                [ConsoleKey.J],
+                context => context.ShowEventLog()),
+            new ModeActionBinding(
                 "Quit",
                 [ConsoleKey.Q, ConsoleKey.Escape],
                 _ => ModeResult.Exit())
@@ -70,9 +75,13 @@ public sealed class GameMode : IGameMode
 
     public ModeResult HandleKey(ConsoleKeyInfo key, GameContext context)
     {
-        return _keyMap.TryGetValue(key.Key, out var command)
-            ? command(context)
-            : ModeResult.Continue("Unknown key in game mode.");
+        if (_keyMap.TryGetValue(key.Key, out var command))
+        {
+            return command(context);
+        }
+
+        GameLogger.Instance.AddEntry($"Unknown key pressed in game mode: {key.Key}.");
+        return ModeResult.Continue("Unknown key in game mode.");
     }
 
     public IReadOnlyList<string> GetHelpLines(GameContext context)

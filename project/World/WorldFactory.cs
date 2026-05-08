@@ -1,6 +1,7 @@
 using ConsoleRpgStage1.Core;
 using ConsoleRpgStage1.Items;
 using ConsoleRpgStage1.World.Building;
+using ConsoleRpgStage1.World.Themes;
 using ConsoleRpgStage1.World.Tiles;
 
 namespace ConsoleRpgStage1.World;
@@ -36,6 +37,15 @@ public sealed class WorldFactory
     public World CreateDungeonGrounds()
     {
         return new DungeonGroundsStrategy()
+            .Configure(new DungeonBuilder(DefaultRows, DefaultCols))
+            .Build();
+    }
+
+    public World CreateDungeonGrounds(IDungeonTheme theme)
+    {
+        ArgumentNullException.ThrowIfNull(theme);
+
+        return theme.GenerationStrategy
             .Configure(new DungeonBuilder(DefaultRows, DefaultCols))
             .Build();
     }

@@ -8,15 +8,18 @@ public sealed class Player
 {
     private readonly List<Item> _inventory = new();
 
-    public Player(Position startPosition)
+    public Player(Position startPosition, string name = "Hero")
     {
         Position = startPosition;
+        Name = string.IsNullOrWhiteSpace(name) ? "Hero" : name.Trim();
         LeftHand = new LeftHand();
         RightHand = new RightHand();
         Equipment = new Equipment();
     }
 
     public IReadOnlyList<Item> Inventory => _inventory;
+
+    public string Name { get; }
 
     public Position Position { get; private set; }
 

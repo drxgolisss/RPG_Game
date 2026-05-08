@@ -5,9 +5,10 @@ namespace ConsoleRpgStage1.World.Building;
 public sealed class AddEnemiesProcedure : IDungeonBuildProcedure
 {
     private readonly int _count;
+    private readonly Func<Enemy>[] _enemyFactories;
     private readonly Random _random;
 
-    public AddEnemiesProcedure(int count, Random? random = null)
+    public AddEnemiesProcedure(int count, IEnumerable<Func<Enemy>>? enemyFactories = null, Random? random = null)
     {
         if (count < 0)
         {
@@ -16,6 +17,12 @@ public sealed class AddEnemiesProcedure : IDungeonBuildProcedure
 
         _count = count;
         _random = random ?? Random.Shared;
+        _enemyFactories = (enemyFactories ?? GetDefaultEnemyFactories()).ToArray();
+
+        if (_enemyFactories.Length == 0)
+        {
+            throw new ArgumentException("At least one enemy factory is required.", nameof(enemyFactories));
+        }
     }
 
     public void Apply(World world)
@@ -41,8 +48,17 @@ public sealed class AddEnemiesProcedure : IDungeonBuildProcedure
         }
     }
 
-    private static Enemy CreateEnemy()
+    private Enemy CreateEnemy()
     {
-        return new Enemy(health: 10, attack: 3, armor: 1);
+        var factory = _enemyFactories[_random.Next(_enemyFactories.Length)];
+        return factory();
+    }
+
+    private static Func<Enemy>[] GetDefaultEnemyFactories()
+    {
+        return
+        [
+            static () => new Enemy(health: 10, attack: 3, armor: 1)
+        ];
     }
 }

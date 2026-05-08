@@ -9,7 +9,7 @@ public sealed class AddWeaponsProcedure : IDungeonBuildProcedure
     private readonly Func<Weapon>[] _weaponFactories;
     private readonly Random _random;
 
-    public AddWeaponsProcedure(int count, Random? random = null)
+    public AddWeaponsProcedure(int count, IEnumerable<Func<Weapon>>? weaponFactories = null, Random? random = null)
     {
         if (count < 0)
         {
@@ -18,13 +18,12 @@ public sealed class AddWeaponsProcedure : IDungeonBuildProcedure
 
         _count = count;
         _random = random ?? Random.Shared;
-        _weaponFactories =
-        [
-            static () => new ShortSwordItem(),
-            static () => new BattleAxeItem(),
-            static () => new GreatswordItem(),
-            static () => new WizardStaffItem()
-        ];
+        _weaponFactories = (weaponFactories ?? GetDefaultWeaponFactories()).ToArray();
+
+        if (_weaponFactories.Length == 0)
+        {
+            throw new ArgumentException("At least one weapon factory is required.", nameof(weaponFactories));
+        }
     }
 
     public void Apply(World world)
@@ -71,5 +70,16 @@ public sealed class AddWeaponsProcedure : IDungeonBuildProcedure
         }
 
         return weapon;
+    }
+
+    private static Func<Weapon>[] GetDefaultWeaponFactories()
+    {
+        return
+        [
+            static () => new ShortSwordItem(),
+            static () => new BattleAxeItem(),
+            static () => new GreatswordItem(),
+            static () => new WizardStaffItem()
+        ];
     }
 }

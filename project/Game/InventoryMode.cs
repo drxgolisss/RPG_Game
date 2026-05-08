@@ -1,5 +1,6 @@
 using ConsoleRpgStage1.Game.Controls;
 using ConsoleRpgStage1.Game.Instructions;
+using ConsoleRpgStage1.Logging;
 
 namespace ConsoleRpgStage1.Game;
 
@@ -22,7 +23,11 @@ public sealed class InventoryMode : IGameMode
             new ModeActionBinding(
                 "Close inventory",
                 [ConsoleKey.I, ConsoleKey.Escape],
-                context => CloseInventory(context))
+                context => CloseInventory(context)),
+            new ModeActionBinding(
+                "Event log",
+                [ConsoleKey.J],
+                context => context.ShowEventLog())
         ];
 
         _browseBindings =
@@ -125,12 +130,17 @@ public sealed class InventoryMode : IGameMode
             }
 
             _awaitingUnequipHand = false;
+            GameLogger.Instance.AddEntry($"Unknown key pressed while choosing item to unequip: {key.Key}.");
             return ModeResult.Continue("Unequip cancelled. Press U, then L or R.");
         }
 
-        return _browseKeyMap.TryGetValue(key.Key, out var browseCommand)
-            ? browseCommand(context)
-            : ModeResult.Continue("Inventory controls: Up/Down, D drop, L equip left, R equip right, U then L/R unequip.");
+        if (_browseKeyMap.TryGetValue(key.Key, out var browseCommand))
+        {
+            return browseCommand(context);
+        }
+
+        GameLogger.Instance.AddEntry($"Unknown key pressed in inventory mode: {key.Key}.");
+        return ModeResult.Continue("Inventory controls: Up/Down, D drop, L equip left, R equip right, U then L/R unequip.");
     }
 
     private static ModeResult CloseInventory(GameContext context)

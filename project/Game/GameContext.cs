@@ -1,6 +1,7 @@
 using ConsoleRpgStage1.Core;
 using ConsoleRpgStage1.Combat;
 using ConsoleRpgStage1.Entities;
+using ConsoleRpgStage1.Logging;
 using ConsoleRpgStage1.UI;
 using GameWorld = ConsoleRpgStage1.World.World;
 
@@ -133,6 +134,12 @@ public sealed class GameContext
 
         var result = Player.TryEquipItem(SelectedInventoryIndex, Player.LeftHand);
         ClampSelection();
+
+        if (result.IsSuccess)
+        {
+            GameLogger.Instance.AddEntry(result.Message);
+        }
+
         return result.Message;
     }
 
@@ -145,6 +152,12 @@ public sealed class GameContext
 
         var result = Player.TryEquipItem(SelectedInventoryIndex, Player.RightHand);
         ClampSelection();
+
+        if (result.IsSuccess)
+        {
+            GameLogger.Instance.AddEntry(result.Message);
+        }
+
         return result.Message;
     }
 
@@ -164,12 +177,38 @@ public sealed class GameContext
 
     public string TryMove(Direction direction)
     {
-        return Player.TryMove(direction, World) ? "Moved." : "Cannot move there.";
+        if (Player.TryMove(direction, World))
+        {
+            return "Moved.";
+        }
+
+        GameLogger.Instance.AddEntry($"Attempted to walk into a wall while moving {direction}.");
+        return "Cannot move there.";
     }
 
     public string TryPickUp()
     {
-        return Player.TryPickUp(World) ? "Picked up item." : "No items to pick up.";
+        var items = World.GetItems(Player.Position);
+        if (items.Count == 0)
+        {
+            return "No items to pick up.";
+        }
+
+        var itemName = items[0].Name;
+
+        if (!Player.TryPickUp(World))
+        {
+            return "No items to pick up.";
+        }
+
+        GameLogger.Instance.AddEntry($"Picked up {itemName}.");
+        return "Picked up item.";
+    }
+
+    public ModeResult ShowEventLog()
+    {
+        new EventLogScreen().Show();
+        return ModeResult.Continue("Event log closed.");
     }
 
     public bool HasEnemyNearby()
@@ -200,10 +239,16 @@ public sealed class GameContext
         }
 
         var combatResult = _combatResolver.ResolveTurn(Player, enemy, attackStyle);
+        GameLogger.Instance.AddEntry($"{Player.Name} used {attackStyle.Name.ToLowerInvariant()} attack and dealt {combatResult.DamageToEnemy} damage to {enemy.Name}.");
 
         if (combatResult.EnemyDefeated)
         {
             World.RemoveEnemy(enemy.Position, enemy);
+            GameLogger.Instance.AddEntry($"Defeated {enemy.Name}.");
+        }
+        else
+        {
+            GameLogger.Instance.AddEntry($"{enemy.Name} attacked {Player.Name} and dealt {combatResult.DamageToPlayer} damage.");
         }
 
         var message = BuildCombatMessage(enemy, attackStyle, combatResult);
@@ -221,22 +266,23 @@ public sealed class GameContext
         var parts = new List<string>
         {
             $"Used {attackStyle.Name.ToLowerInvariant()} attack.",
-            $"Enemy took {combatResult.DamageToEnemy} damage."
+            $"{enemy.Name} took {combatResult.DamageToEnemy} damage."
         };
 
         if (combatResult.EnemyDefeated)
         {
-            parts.Add("Enemy defeated.");
+            parts.Add($"{enemy.Name} defeated.");
         }
         else
         {
-            parts.Add($"Enemy HP: {enemy.Health}.");
-            parts.Add($"You took {combatResult.DamageToPlayer} damage.");
+            parts.Add($"{enemy.Name} HP: {enemy.Health}.");
+            parts.Add($"{Player.Name} took {combatResult.DamageToPlayer} damage.");
         }
 
         if (combatResult.PlayerDefeated)
         {
             parts.Add("Game over: you were defeated.");
+            parts.Add($"Log file: {GameLogger.Instance.LogFilePath}");
         }
         else
         {

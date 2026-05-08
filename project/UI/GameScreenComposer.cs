@@ -1,5 +1,6 @@
 using System.Text;
 using ConsoleRpgStage1.Game;
+using ConsoleRpgStage1.Logging;
 
 namespace ConsoleRpgStage1.UI;
 
@@ -7,6 +8,7 @@ public sealed class GameScreenComposer
 {
     private const int ScreenWidth = 80;
     private const int SeparatorWidth = 3;
+    private const int RecentLogRows = 4;
 
     public string Build(GameContext context)
     {
@@ -53,6 +55,8 @@ public sealed class GameScreenComposer
             AppendInventoryRows(panelLines, context, panelRows);
         }
 
+        AppendRecentLogRows(panelLines, panelWidth, panelRows);
+
         while (panelLines.Count < panelRows)
         {
             panelLines.Add(string.Empty);
@@ -79,6 +83,29 @@ public sealed class GameScreenComposer
     public int GetSafeCursorRow(GameContext context)
     {
         return Math.Min(context.World.Rows, Console.BufferHeight - 1);
+    }
+
+    private static void AppendRecentLogRows(List<string> panelLines, int panelWidth, int panelRows)
+    {
+        var rowsAvailable = panelRows - panelLines.Count;
+        if (rowsAvailable <= 0)
+        {
+            return;
+        }
+
+        panelLines.Add("Recent log:");
+        rowsAvailable--;
+
+        if (rowsAvailable <= 0)
+        {
+            return;
+        }
+
+        var entriesToShow = Math.Min(RecentLogRows - 1, rowsAvailable);
+        foreach (var entry in GameLogger.Instance.GetRecentEntries(entriesToShow))
+        {
+            panelLines.Add(FitLine(entry, panelWidth));
+        }
     }
 
     private static void AppendInventoryRows(List<string> panelLines, GameContext context, int panelRows)

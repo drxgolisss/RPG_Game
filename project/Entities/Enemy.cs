@@ -4,7 +4,7 @@ namespace ConsoleRpgStage1.Entities;
 
 public sealed class Enemy
 {
-    public Enemy(int health, int attack, int armor)
+    public Enemy(int health, int attack, int armor, string name = "Enemy", char symbol = 'E')
     {
         if (health <= 0)
         {
@@ -24,8 +24,12 @@ public sealed class Enemy
         Health = health;
         Attack = attack;
         Armor = armor;
+        Name = string.IsNullOrWhiteSpace(name) ? "Enemy" : name.Trim();
+        Symbol = symbol;
         Position = new Position(0, 0);
     }
+
+    public string Name { get; }
 
     public int Health { get; private set; }
 
@@ -35,7 +39,7 @@ public sealed class Enemy
 
     public Position Position { get; private set; }
 
-    public char Symbol => 'E';
+    public char Symbol { get; }
 
     public bool IsDead => Health <= 0;
 

@@ -9,7 +9,7 @@ public sealed class AddItemsProcedure : IDungeonBuildProcedure
     private readonly Func<Item>[] _itemFactories;
     private readonly Random _random;
 
-    public AddItemsProcedure(int count, Random? random = null)
+    public AddItemsProcedure(int count, IEnumerable<Func<Item>>? itemFactories = null, Random? random = null)
     {
         if (count < 0)
         {
@@ -18,12 +18,12 @@ public sealed class AddItemsProcedure : IDungeonBuildProcedure
 
         _count = count;
         _random = random ?? Random.Shared;
-        _itemFactories =
-        [
-            static () => new ItemRock(),
-            static () => new BrokenBottleItem(),
-            static () => new RustyGearItem()
-        ];
+        _itemFactories = (itemFactories ?? GetDefaultItemFactories()).ToArray();
+
+        if (_itemFactories.Length == 0)
+        {
+            throw new ArgumentException("At least one item factory is required.", nameof(itemFactories));
+        }
     }
 
     public void Apply(World world)
@@ -61,5 +61,15 @@ public sealed class AddItemsProcedure : IDungeonBuildProcedure
         }
 
         return new UnluckyModifier(item);
+    }
+
+    private static Func<Item>[] GetDefaultItemFactories()
+    {
+        return
+        [
+            static () => new ItemRock(),
+            static () => new BrokenBottleItem(),
+            static () => new RustyGearItem()
+        ];
     }
 }
