@@ -4,7 +4,7 @@ namespace ConsoleRpgStage1.Entities;
 
 public sealed class RightHand : Hand
 {
-    public RightHand() : base("Right")
+    public RightHand() : base("Rigdsht")
     {
     }
 

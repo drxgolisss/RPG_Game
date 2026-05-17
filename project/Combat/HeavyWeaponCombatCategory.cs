@@ -7,6 +7,8 @@ public sealed class HeavyWeaponCombatCategory : IWeaponCombatCategory
 {
     public string Name => "Heavy";
 
+    public int NoiseRange => 8;
+
     public int CalculateAttackDamage(Weapon weapon, Player player, IAttackStyle attackStyle)
     {
         return attackStyle.CalculateAttackDamageForHeavyWeapon(weapon, player);

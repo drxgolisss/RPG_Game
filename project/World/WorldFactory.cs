@@ -1,5 +1,6 @@
 using ConsoleRpgStage1.Core;
 using ConsoleRpgStage1.Items;
+using ConsoleRpgStage1.Reactive.Notifications;
 using ConsoleRpgStage1.World.Building;
 using ConsoleRpgStage1.World.Themes;
 using ConsoleRpgStage1.World.Tiles;
@@ -43,9 +44,14 @@ public sealed class WorldFactory
 
     public World CreateDungeonGrounds(IDungeonTheme theme)
     {
+        return CreateDungeonGrounds(theme, null);
+    }
+
+    public World CreateDungeonGrounds(IDungeonTheme theme, INoiseSubject? noiseSubject)
+    {
         ArgumentNullException.ThrowIfNull(theme);
 
-        return theme.GenerationStrategy
+        return theme.CreateGenerationStrategy(noiseSubject ?? new NoiseBroadcaster())
             .Configure(new DungeonBuilder(DefaultRows, DefaultCols))
             .Build();
     }

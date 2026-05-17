@@ -7,6 +7,8 @@ public sealed class LightWeaponCombatCategory : IWeaponCombatCategory
 {
     public string Name => "Light";
 
+    public int NoiseRange => 1;
+
     public int CalculateAttackDamage(Weapon weapon, Player player, IAttackStyle attackStyle)
     {
         return attackStyle.CalculateAttackDamageForLightWeapon(weapon, player);

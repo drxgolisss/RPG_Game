@@ -1,5 +1,7 @@
 using ConsoleRpgStage1.Entities;
 using ConsoleRpgStage1.Items;
+using ConsoleRpgStage1.Reactive.Notifications;
+using ConsoleRpgStage1.Reactive.Species;
 
 namespace ConsoleRpgStage1.World.Building;
 
@@ -13,8 +15,10 @@ public sealed class DungeonGroundsStrategy : IDungeonBuildStrategy
     private readonly int _pathsCount;
     private readonly int _weaponsCount;
     private readonly IReadOnlyList<Func<Enemy>>? _enemyFactories;
+    private readonly IReadOnlyList<EnemySpeciesDefinition>? _enemySpeciesDefinitions;
     private readonly IReadOnlyList<Func<Item>>? _itemFactories;
     private readonly Func<Item>? _mandatoryArtifactFactory;
+    private readonly INoiseSubject? _noiseSubject;
     private readonly IReadOnlyList<Func<Weapon>>? _weaponFactories;
 
     public DungeonGroundsStrategy(
@@ -28,6 +32,8 @@ public sealed class DungeonGroundsStrategy : IDungeonBuildStrategy
         IReadOnlyList<Func<Item>>? itemFactories = null,
         IReadOnlyList<Func<Weapon>>? weaponFactories = null,
         IReadOnlyList<Func<Enemy>>? enemyFactories = null,
+        IReadOnlyList<EnemySpeciesDefinition>? enemySpeciesDefinitions = null,
+        INoiseSubject? noiseSubject = null,
         Func<Item>? mandatoryArtifactFactory = null)
     {
         if (centralRoomWidth <= 0)
@@ -75,6 +81,8 @@ public sealed class DungeonGroundsStrategy : IDungeonBuildStrategy
         _itemFactories = itemFactories;
         _weaponFactories = weaponFactories;
         _enemyFactories = enemyFactories;
+        _enemySpeciesDefinitions = enemySpeciesDefinitions;
+        _noiseSubject = noiseSubject;
         _mandatoryArtifactFactory = mandatoryArtifactFactory;
     }
 
@@ -87,7 +95,7 @@ public sealed class DungeonGroundsStrategy : IDungeonBuildStrategy
             .Apply(new AddCentralRoomProcedure(_centralRoomWidth, _centralRoomHeight))
             .Apply(new AddChambersProcedure(_chambersCount))
             .Apply(new AddPathsProcedure(_pathsCount))
-            .Apply(new AddEnemiesProcedure(_enemiesCount, _enemyFactories))
+            .Apply(new AddEnemiesProcedure(_enemiesCount, _enemyFactories, _enemySpeciesDefinitions, _noiseSubject))
             .Apply(new AddItemsProcedure(_itemsCount, _itemFactories))
             .Apply(new AddWeaponsProcedure(_weaponsCount, _weaponFactories))
             .Apply(new AddMandatoryItemProcedure(_mandatoryArtifactFactory ?? CreateDefaultArtifact));

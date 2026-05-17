@@ -4,6 +4,7 @@ using ConsoleRpgStage1.Core;
 using ConsoleRpgStage1.Entities;
 using ConsoleRpgStage1.Game;
 using ConsoleRpgStage1.Logging;
+using ConsoleRpgStage1.Reactive.Notifications;
 using ConsoleRpgStage1.UI;
 using ConsoleRpgStage1.World;
 using ConsoleRpgStage1.World.Themes;
@@ -18,9 +19,10 @@ GameLogger.Instance.AddEntry("Game session started.");
 
 var themeSelector = new RandomDungeonThemeSelector();
 var dungeonTheme = themeSelector.SelectTheme();
+var noiseSubject = new NoiseBroadcaster();
 
 var worldFactory = new WorldFactory();
-var world = worldFactory.CreateDungeonGrounds(dungeonTheme);
+var world = worldFactory.CreateDungeonGrounds(dungeonTheme, noiseSubject);
 var player = new Player(new Position(world.Rows / 2, world.Cols / 2), config.PlayerName);
 var renderer = new Renderer();
 
@@ -33,7 +35,8 @@ var context = new GameContext(
     renderer,
     gameMode,
     inventoryMode,
-    initialMessage);
+    initialMessage,
+    noiseSubject);
 var screenComposer = new GameScreenComposer();
 
 Console.OutputEncoding = Encoding.UTF8;

@@ -78,10 +78,51 @@ public sealed class World
         _cells[p.Row, p.Col].AddEnemy(enemy);
     }
 
+    public bool MoveEnemy(Enemy enemy, Position target)
+    {
+        ArgumentNullException.ThrowIfNull(enemy);
+
+        if (!CanEnter(target))
+        {
+            return false;
+        }
+
+        if (GetEnemies(target).Count > 0)
+        {
+            return false;
+        }
+
+        var current = enemy.Position;
+        EnsureInBounds(current);
+
+        if (!_cells[current.Row, current.Col].RemoveEnemy(enemy))
+        {
+            return false;
+        }
+
+        AddEnemy(target, enemy);
+        return true;
+    }
+
     public IReadOnlyList<Enemy> GetEnemies(Position p)
     {
         EnsureInBounds(p);
         return _cells[p.Row, p.Col].Enemies;
+    }
+
+    public IReadOnlyList<Enemy> GetAllEnemies()
+    {
+        var enemies = new List<Enemy>();
+
+        for (var row = 0; row < Rows; row++)
+        {
+            for (var col = 0; col < Cols; col++)
+            {
+                enemies.AddRange(_cells[row, col].Enemies);
+            }
+        }
+
+        return enemies;
     }
 
     public bool RemoveEnemy(Position p, Enemy enemy)

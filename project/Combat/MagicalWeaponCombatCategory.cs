@@ -7,6 +7,8 @@ public sealed class MagicalWeaponCombatCategory : IWeaponCombatCategory
 {
     public string Name => "Magical";
 
+    public int NoiseRange => 4;
+
     public int CalculateAttackDamage(Weapon weapon, Player player, IAttackStyle attackStyle)
     {
         return attackStyle.CalculateAttackDamageForMagicalWeapon(weapon, player);

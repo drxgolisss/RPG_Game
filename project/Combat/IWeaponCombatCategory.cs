@@ -7,6 +7,8 @@ public interface IWeaponCombatCategory
 {
     string Name { get; }
 
+    int NoiseRange { get; }
+
     int CalculateAttackDamage(Weapon weapon, Player player, IAttackStyle attackStyle);
 
     int CalculateDefenseStrength(Weapon weapon, Player player, IAttackStyle attackStyle);

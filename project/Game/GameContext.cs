@@ -1,7 +1,9 @@
 using ConsoleRpgStage1.Core;
 using ConsoleRpgStage1.Combat;
 using ConsoleRpgStage1.Entities;
+using ConsoleRpgStage1.Items;
 using ConsoleRpgStage1.Logging;
+using ConsoleRpgStage1.Reactive.Notifications;
 using ConsoleRpgStage1.UI;
 using GameWorld = ConsoleRpgStage1.World.World;
 
@@ -21,6 +23,7 @@ public sealed class GameContext
     ];
 
     private readonly CombatResolver _combatResolver;
+    private readonly INoiseSubject _noiseSubject;
 
     public GameContext(
         GameWorld world,
@@ -28,7 +31,8 @@ public sealed class GameContext
         Renderer renderer,
         IGameMode gameMode,
         IGameMode inventoryMode,
-        string initialMessage)
+        string initialMessage,
+        INoiseSubject? noiseSubject = null)
     {
         World = world;
         Player = player;
@@ -38,6 +42,7 @@ public sealed class GameContext
         CurrentMode = gameMode;
         LastMessage = initialMessage;
         _combatResolver = new CombatResolver();
+        _noiseSubject = noiseSubject ?? new NoiseBroadcaster();
     }
 
     public GameWorld World { get; }
@@ -67,6 +72,11 @@ public sealed class GameContext
         {
             CurrentMode = result.NextMode;
             CurrentMode.OnEnter(this);
+        }
+
+        if (!result.ShouldExit && ReferenceEquals(CurrentMode, GameMode))
+        {
+            UpdateEnemies();
         }
 
         return result.ShouldExit;
@@ -194,7 +204,8 @@ public sealed class GameContext
             return "No items to pick up.";
         }
 
-        var itemName = items[0].Name;
+        var item = items[0];
+        var itemName = item.Name;
 
         if (!Player.TryPickUp(World))
         {
@@ -202,7 +213,26 @@ public sealed class GameContext
         }
 
         GameLogger.Instance.AddEntry($"Picked up {itemName}.");
+
+        if (item is Weapon weapon)
+        {
+            BroadcastNoise(Player.Position, weapon.CombatCategory.NoiseRange, $"Picked up {weapon.CombatCategory.Name.ToLowerInvariant()} weapon {itemName}");
+        }
+
         return "Picked up item.";
+    }
+
+    public void BroadcastNoise(Position source, int range, string description)
+    {
+        _noiseSubject.NotifyNoise(new NoiseEvent(World, source, range, description));
+    }
+
+    public void UpdateEnemies()
+    {
+        foreach (var enemy in World.GetAllEnemies().ToArray())
+        {
+            enemy.Move(World);
+        }
     }
 
     public ModeResult ShowEventLog()
@@ -243,7 +273,7 @@ public sealed class GameContext
 
         if (combatResult.EnemyDefeated)
         {
-            World.RemoveEnemy(enemy.Position, enemy);
+            RemoveDefeatedEnemy(enemy);
             GameLogger.Instance.AddEntry($"Defeated {enemy.Name}.");
         }
         else
@@ -290,6 +320,14 @@ public sealed class GameContext
         }
 
         return string.Join(" ", parts);
+    }
+
+    private void RemoveDefeatedEnemy(Enemy enemy)
+    {
+        enemy.BroadcastDeath();
+        _noiseSubject.Unsubscribe(enemy);
+        enemy.DetachFromSpecies();
+        World.RemoveEnemy(enemy.Position, enemy);
     }
 
     private bool TryFindAdjacentEnemy(out Enemy enemy)
